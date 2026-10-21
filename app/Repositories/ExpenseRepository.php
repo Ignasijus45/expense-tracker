@@ -31,4 +31,13 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             ->pluck('total', 'category')
             ->all();
     }
+
+    public function search(User $user, string $term): Collection
+    {
+        return $user->expenses()
+            ->where('description', 'like', '%'.$term.'%')
+            ->with('category')
+            ->latest('spent_at')
+            ->get();
+    }
 }

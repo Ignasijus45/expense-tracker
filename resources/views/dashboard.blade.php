@@ -45,6 +45,12 @@
 
 <h2>My expenses</h2>
 
+<form method="GET" action="/dashboard">
+    <input name="search" value="{{ request('search') }}" placeholder="Search description">
+    <button type="submit">Search</button>
+    <a href="/dashboard">Clear</a>
+</form>
+
 <p>
     Export:
     <a href="/expenses/export/csv">CSV</a> |

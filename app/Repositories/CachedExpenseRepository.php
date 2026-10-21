@@ -40,4 +40,9 @@ class CachedExpenseRepository implements ExpenseRepositoryInterface
     {
         return "expense-totals:{$user->id}";
     }
+
+    public function search(User $user, string $term): Collection
+    {
+        return $this->inner->search($user, $term);
+    }
 }

@@ -13,4 +13,6 @@ interface ExpenseRepositoryInterface
     public function create(User $user, array $data): Expense;
 
     public function totalsByCategory(User $user): array;
+
+    public function search(User $user, string $term): Collection;
 }

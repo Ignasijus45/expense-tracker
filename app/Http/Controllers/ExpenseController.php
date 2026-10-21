@@ -19,9 +19,12 @@ class ExpenseController extends Controller
 
     public function index(Request $request): View
     {
+        $search = $request->query('search');
 
         return view('dashboard', [
-            'expenses' => $this->expenses->forUser($request->user()),
+            'expenses' => $search
+                ? $this->expenses->search($request->user(), $search)
+                : $this->expenses->forUser($request->user()),
             'categories' => Category::orderBy('name')->get(),
             'totals' => $this->expenses->totalsByCategory($request->user()),
         ]);
