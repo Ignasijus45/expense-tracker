@@ -33,6 +33,16 @@
     <button type="submit">Add</button>
 </form>
 
+<h2>Totals by category</h2>
+
+<ul>
+    @forelse ($totals as $category => $total)
+        <li>{{ $category }}: {{ number_format($total, 2) }} €</li>
+    @empty
+        <li>Nothing yet.</li>
+    @endforelse
+</ul>
+
 <h2>My expenses</h2>
 
 <p>

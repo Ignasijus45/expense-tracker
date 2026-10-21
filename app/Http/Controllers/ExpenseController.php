@@ -23,6 +23,7 @@ class ExpenseController extends Controller
         return view('dashboard', [
             'expenses' => $this->expenses->forUser($request->user()),
             'categories' => Category::orderBy('name')->get(),
+            'totals' => $this->expenses->totalsByCategory($request->user()),
         ]);
     }
 

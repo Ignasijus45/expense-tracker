@@ -20,4 +20,15 @@ class ExpenseRepository implements ExpenseRepositoryInterface
     {
         return $user->expenses()->create($data);
     }
+
+    public function totalsByCategory(User $user): array
+    {
+        return $user->expenses()
+            ->join('categories', 'categories.id', '=', 'expenses.category_id')
+            ->selectRaw('categories.name as category, SUM(expenses.amount) as total')
+            ->groupBy('categories.name')
+            ->orderBy('categories.name')
+            ->pluck('total', 'category')
+            ->all();
+    }
 }
