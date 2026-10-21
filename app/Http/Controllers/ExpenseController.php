@@ -12,8 +12,8 @@ class ExpenseController extends Controller
 {
     public function __construct(
         private ExpenseRepositoryInterface $expenses,
-    ) {
-    }
+    ) {}
+
     public function index(Request $request): View
     {
 

@@ -29,6 +29,7 @@ class AuthController extends Controller
 
         return redirect('/dashboard');
     }
+
     public function showLogin(): View
     {
         return view('auth.login');
@@ -41,7 +42,7 @@ class AuthController extends Controller
             'password' => ['required'],
         ]);
 
-        if (!Auth::attempt($credentials)) {
+        if (! Auth::attempt($credentials)) {
             return back()
                 ->withErrors(['email' => 'Wrong email or password.'])
                 ->onlyInput('email');
