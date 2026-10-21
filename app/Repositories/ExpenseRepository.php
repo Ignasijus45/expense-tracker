@@ -6,7 +6,7 @@ use App\Models\Expense;
 use App\Models\User;
 use Illuminate\Database\Eloquent\Collection;
 
-class ExpenseRepository
+class ExpenseRepository implements ExpenseRepositoryInterface
 {
     public function forUser(User $user): Collection
     {

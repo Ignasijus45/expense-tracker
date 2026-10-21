@@ -3,19 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Category;
-use App\Repositories\ExpenseRepository;
+use App\Repositories\ExpenseRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\View\View;
 
 class ExpenseController extends Controller
 {
+    public function __construct(
+        private ExpenseRepositoryInterface $expenses,
+    ) {
+    }
     public function index(Request $request): View
     {
-        $repository = new ExpenseRepository();
 
         return view('dashboard', [
-            'expenses' => $repository->forUser($request->user()),
+            'expenses' => $this->expenses->forUser($request->user()),
             'categories' => Category::orderBy('name')->get(),
         ]);
     }
@@ -29,8 +32,7 @@ class ExpenseController extends Controller
             'spent_at' => ['required', 'date'],
         ]);
 
-        $repository = new ExpenseRepository();
-        $repository->create($request->user(), $data);
+        $this->expenses->create($request->user(), $data);
 
         return redirect('/dashboard');
     }
