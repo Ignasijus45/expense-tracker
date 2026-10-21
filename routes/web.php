@@ -19,6 +19,7 @@ Route::get('/dashboard', function () {
 })->middleware('auth');
 
 Route::middleware('auth')->group(function () {
+    Route::get('/expenses/export/{format}', [ExpenseController::class, 'export']);
     Route::get('/dashboard', [ExpenseController::class, 'index']);
     Route::post('/expenses', [ExpenseController::class, 'store']);
 });

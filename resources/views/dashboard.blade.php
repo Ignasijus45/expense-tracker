@@ -19,19 +19,27 @@
 
     <label>Amount (€)</label>
     <input name="amount" type="number" step="0.01" value="{{ old('amount') }}">
-    @error('amount') <p style="color:red">{{ $message }}</p> @enderror
+    @error('amount')
+    <p style="color:red">{{ $message }}</p> @enderror
 
     <label>Description</label>
     <input name="description" value="{{ old('description') }}">
 
     <label>Date</label>
     <input name="spent_at" type="date" value="{{ old('spent_at', date('Y-m-d')) }}">
-    @error('spent_at') <p style="color:red">{{ $message }}</p> @enderror
+    @error('spent_at')
+    <p style="color:red">{{ $message }}</p> @enderror
 
     <button type="submit">Add</button>
 </form>
 
 <h2>My expenses</h2>
+
+<p>
+    Export:
+    <a href="/expenses/export/csv">CSV</a> |
+    <a href="/expenses/export/json">JSON</a>
+</p>
 
 <table border="1">
     <tr>
@@ -48,6 +56,8 @@
             <td>{{ $expense->amount }} €</td>
         </tr>
     @empty
-        <tr><td colspan="4">No expenses yet.</td></tr>
+        <tr>
+            <td colspan="4">No expenses yet.</td>
+        </tr>
     @endforelse
 </table>

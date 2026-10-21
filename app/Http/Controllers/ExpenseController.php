@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers;
 
+use App\Exporters\CsvExporter;
+use App\Exporters\JsonExporter;
 use App\Models\Category;
 use App\Repositories\ExpenseRepositoryInterface;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Http\Response;
 use Illuminate\View\View;
 
 class ExpenseController extends Controller
@@ -35,5 +38,20 @@ class ExpenseController extends Controller
         $this->expenses->create($request->user(), $data);
 
         return redirect('/dashboard');
+    }
+
+    public function export(Request $request, string $format): Response
+    {
+        $exporter = match ($format) {
+            'csv' => app(CsvExporter::class),
+            'json' => app(JsonExporter::class),
+            default => abort(404),
+        };
+
+        $expenses = $this->expenses->forUser($request->user());
+
+        return response($exporter->export($expenses))
+            ->header('Content-Type', $exporter->contentType())
+            ->header('Content-Disposition', 'attachment; filename="expenses.'.$exporter->extension().'"');
     }
 }
