@@ -45,4 +45,14 @@ class CachedExpenseRepository implements ExpenseRepositoryInterface
     {
         return $this->inner->search($user, $term);
     }
+
+    public function monthlyTotals(User $user): array
+    {
+        return $this->inner->monthlyTotals($user);
+    }
+
+    public function weeklyTotals(User $user, string $month): array
+    {
+        return $this->inner->weeklyTotals($user, $month);
+    }
 }

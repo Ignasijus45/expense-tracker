@@ -15,4 +15,8 @@ interface ExpenseRepositoryInterface
     public function totalsByCategory(User $user): array;
 
     public function search(User $user, string $term): Collection;
+
+    public function monthlyTotals(User $user): array;
+
+    public function weeklyTotals(User $user, string $month): array;
 }

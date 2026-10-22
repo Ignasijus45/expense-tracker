@@ -40,4 +40,39 @@ class ExpenseRepository implements ExpenseRepositoryInterface
             ->latest('spent_at')
             ->get();
     }
+
+    public function monthlyTotals(User $user): array
+    {
+        return $user->expenses()
+            ->join('categories', 'categories.id', '=', 'expenses.category_id')
+            ->selectRaw("strftime('%Y-%m', expenses.spent_at) as month, categories.name as category, SUM(expenses.amount) as total")
+            ->groupBy('month', 'categories.name')
+            ->orderBy('month')
+            ->orderBy('categories.name')
+            ->get()
+            ->map(fn ($row) => [
+                'month' => $row->month,
+                'category' => $row->category,
+                'total' => round((float) $row->total, 2),
+            ])
+            ->all();
+    }
+
+    public function weeklyTotals(User $user, string $month): array
+    {
+        return $user->expenses()
+            ->join('categories', 'categories.id', '=', 'expenses.category_id')
+            ->whereRaw("strftime('%Y-%m', expenses.spent_at) = ?", [$month])
+            ->selectRaw("((CAST(strftime('%d', expenses.spent_at) AS INTEGER) - 1) / 7) + 1 as week, categories.name as category, SUM(expenses.amount) as total")
+            ->groupBy('week', 'categories.name')
+            ->orderBy('week')
+            ->orderBy('categories.name')
+            ->get()
+            ->map(fn ($row) => [
+                'week' => (int) $row->week,
+                'category' => $row->category,
+                'total' => round((float) $row->total, 2),
+            ])
+            ->all();
+    }
 }
