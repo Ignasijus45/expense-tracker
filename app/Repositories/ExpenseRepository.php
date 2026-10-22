@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Models\Expense;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 
 class ExpenseRepository implements ExpenseRepositoryInterface
@@ -43,36 +44,55 @@ class ExpenseRepository implements ExpenseRepositoryInterface
 
     public function monthlyTotals(User $user): array
     {
-        return $user->expenses()
+        $results = $user->expenses()
             ->join('categories', 'categories.id', '=', 'expenses.category_id')
             ->selectRaw("strftime('%Y-%m', expenses.spent_at) as month, categories.name as category, SUM(expenses.amount) as total")
             ->groupBy('month', 'categories.name')
             ->orderBy('month')
             ->orderBy('categories.name')
-            ->get()
-            ->map(fn ($row) => [
-                'month' => $row->month,
-                'category' => $row->category,
-                'total' => round((float) $row->total, 2),
-            ])
-            ->all();
+            ->get();
+
+        $rows = [];
+
+        foreach ($results as $result) {
+            $rows[] = [
+                'month' => $result->month,
+                'category' => $result->category,
+                'total' => round($result->total, 2),
+            ];
+        }
+
+        return $rows;
     }
 
     public function weeklyTotals(User $user, string $month): array
     {
-        return $user->expenses()
-            ->join('categories', 'categories.id', '=', 'expenses.category_id')
-            ->whereRaw("strftime('%Y-%m', expenses.spent_at) = ?", [$month])
-            ->selectRaw("((CAST(strftime('%d', expenses.spent_at) AS INTEGER) - 1) / 7) + 1 as week, categories.name as category, SUM(expenses.amount) as total")
-            ->groupBy('week', 'categories.name')
-            ->orderBy('week')
-            ->orderBy('categories.name')
-            ->get()
-            ->map(fn ($row) => [
-                'week' => (int) $row->week,
-                'category' => $row->category,
-                'total' => round((float) $row->total, 2),
-            ])
-            ->all();
+        $firstDay = Carbon::parse($month.'-01');
+        $lastDay = $firstDay->copy()->endOfMonth();
+
+        $expenses = $user->expenses()
+            ->with('category')
+            ->whereBetween('spent_at', [$firstDay, $lastDay])
+            ->get();
+
+        $rows = [];
+
+        foreach ($expenses as $expense) {
+            $week = intdiv($expense->spent_at->day - 1, 7) + 1;
+            $category = $expense->category->name;
+            $key = $category.'-'.$week;
+
+            if (! isset($rows[$key])) {
+                $rows[$key] = [
+                    'week' => $week,
+                    'category' => $category,
+                    'total' => 0,
+                ];
+            }
+
+            $rows[$key]['total'] = round($rows[$key]['total'] + $expense->amount, 2);
+        }
+
+        return array_values($rows);
     }
 }

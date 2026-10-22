@@ -8,22 +8,16 @@ class CsvExporter implements ExpenseExporter
 {
     public function export(Collection $expenses): string
     {
-        $file = fopen('php://temp', 'r+');
-
-        fputcsv($file, ['date', 'category', 'description', 'amount'], escape: '');
+        $csv = "date,category,description,amount\n";
 
         foreach ($expenses as $expense) {
-            fputcsv($file, [
-                $expense->spent_at->format('Y-m-d'),
-                $expense->category->name,
-                $expense->description,
-                $expense->amount,
-            ], escape: '');
-        }
+            $date = $expense->spent_at->format('Y-m-d');
+            $category = $expense->category->name;
+            $description = str_replace(',', ' ', $expense->description ?? '');
+            $amount = $expense->amount;
 
-        rewind($file);
-        $csv = stream_get_contents($file);
-        fclose($file);
+            $csv .= "$date,$category,$description,$amount\n";
+        }
 
         return $csv;
     }

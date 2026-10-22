@@ -4,7 +4,6 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use App\Repositories\ExpenseRepositoryInterface;
-use App\Support\ChartData;
 use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -19,9 +18,14 @@ class StatsController extends Controller
     {
         $rows = $this->expenses->monthlyTotals($request->user());
 
-        $months = array_values(array_unique(array_column($rows, 'month')));
+        $months = [];
+        foreach ($rows as $row) {
+            if (! in_array($row['month'], $months)) {
+                $months[] = $row['month'];
+            }
+        }
 
-        return response()->json(ChartData::fromRows($rows, 'month', $months));
+        return response()->json($this->buildChart($rows, 'month', $months));
     }
 
     public function weekly(Request $request): JsonResponse
@@ -35,8 +39,49 @@ class StatsController extends Controller
         $rows = $this->expenses->weeklyTotals($request->user(), $month);
 
         $daysInMonth = Carbon::parse($month.'-01')->daysInMonth;
-        $weeks = range(1, (int) ceil($daysInMonth / 7));
+        $weekCount = (int) ceil($daysInMonth / 7);
+        $weeks = range(1, $weekCount);
 
-        return response()->json(ChartData::fromRows($rows, 'week', $weeks));
+        return response()->json($this->buildChart($rows, 'week', $weeks));
+    }
+
+    private function buildChart(array $rows, string $periodKey, array $labels): array
+    {
+        $categories = [];
+        foreach ($rows as $row) {
+            if (! in_array($row['category'], $categories)) {
+                $categories[] = $row['category'];
+            }
+        }
+        sort($categories);
+
+        $datasets = [];
+        foreach ($categories as $category) {
+            $data = [];
+            foreach ($labels as $label) {
+                $data[] = $this->findTotal($rows, $periodKey, $label, $category);
+            }
+
+            $datasets[] = [
+                'label' => $category,
+                'data' => $data,
+            ];
+        }
+
+        return [
+            'labels' => $labels,
+            'datasets' => $datasets,
+        ];
+    }
+
+    private function findTotal(array $rows, string $periodKey, $label, string $category): float
+    {
+        foreach ($rows as $row) {
+            if ($row[$periodKey] === $label && $row['category'] === $category) {
+                return $row['total'];
+            }
+        }
+
+        return 0;
     }
 }
