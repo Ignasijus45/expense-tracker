@@ -1,27 +1,48 @@
-<div>
-    <h1>Register</h1>
+@extends('layouts.app')
 
-    <form method="POST" action="/register">
-        @csrf
+@section('content')
 
-        <label>Name</label>
-        <input name="name" value="{{ old('name') }}">
-        @error('name')
-        <p style="color:red">{{ $message }}</p> @enderror
+<div class="row justify-content-center">
+    <div class="col-md-5">
 
-        <label>Email</label>
-        <input name="email" type="email" value="{{ old('email') }}">
-        @error('email')
-        <p style="color:red">{{ $message }}</p> @enderror
+        <div class="card shadow-sm">
+            <div class="card-body">
+                <h1 class="h4 mb-3">Register</h1>
 
-        <label>Password</label>
-        <input name="password" type="password">
-        @error('password')
-        <p style="color:red">{{ $message }}</p> @enderror
+                <form method="POST" action="/register">
+                    @csrf
 
-        <label>Repeat password</label>
-        <input name="password_confirmation" type="password">
+                    <div class="mb-3">
+                        <label class="form-label">Name</label>
+                        <input name="name" value="{{ old('name') }}" class="form-control">
+                        @error('name') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
 
-        <button type="submit">Register</button>
-    </form>
+                    <div class="mb-3">
+                        <label class="form-label">Email</label>
+                        <input name="email" type="email" value="{{ old('email') }}" class="form-control">
+                        @error('email') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Password</label>
+                        <input name="password" type="password" class="form-control">
+                        @error('password') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Repeat password</label>
+                        <input name="password_confirmation" type="password" class="form-control">
+                    </div>
+
+                    <button type="submit" class="btn btn-primary w-100">Register</button>
+                </form>
+
+                <p class="text-center mt-3 mb-0">Already registered? <a href="/login">Log in</a></p>
+            </div>
+        </div>
+
+    </div>
 </div>
+
+@endsection
