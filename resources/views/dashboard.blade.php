@@ -1,9 +1,8 @@
-<h1>Hello, {{ auth()->user()->name }}!</h1>
+@extends('layouts.app')
 
-<form method="POST" action="/logout">
-    @csrf
-    <button type="submit">Log out</button>
-</form>
+@section('content')
+
+<h1>Hello, {{ auth()->user()->name }}!</h1>
 
 <h2>Add an expense</h2>
 
@@ -77,3 +76,4 @@
         </tr>
     @endforelse
 </table>
+@endsection
