@@ -6,13 +6,15 @@
 
 <div class="card shadow-sm">
     <div class="card-body">
-        <pre id="output">Loading...</pre>
+        <h2 class="h5 mb-3">Spending per month</h2>
+        <canvas id="monthlyChart"></canvas>
     </div>
 </div>
 
 @endsection
 
 @push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 <script>
     async function loadMonthly() {
         const response = await fetch('/api/stats/monthly', {
@@ -21,7 +23,16 @@
 
         const data = await response.json();
 
-        document.getElementById('output').textContent = JSON.stringify(data, null, 2);
+        new Chart(document.getElementById('monthlyChart'), {
+            type: 'bar',
+            data: data,
+            options: {
+                scales: {
+                    x: { stacked: true },
+                    y: { stacked: true },
+                },
+            },
+        });
     }
 
     loadMonthly();
