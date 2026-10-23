@@ -2,78 +2,110 @@
 
 @section('content')
 
-<h1>Hello, {{ auth()->user()->name }}!</h1>
+<h1 class="h3 mb-4">Hello, {{ auth()->user()->name }} 👋</h1>
 
-<h2>Add an expense</h2>
+<div class="row">
 
-<form method="POST" action="/expenses">
-    @csrf
+    <div class="col-lg-4">
 
-    <label>Category</label>
-    <select name="category_id">
-        @foreach ($categories as $category)
-            <option value="{{ $category->id }}">{{ $category->name }}</option>
-        @endforeach
-    </select>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Add an expense</h2>
 
-    <label>Amount (€)</label>
-    <input name="amount" type="number" step="0.01" value="{{ old('amount') }}">
-    @error('amount')
-    <p style="color:red">{{ $message }}</p> @enderror
+                <form method="POST" action="/expenses">
+                    @csrf
 
-    <label>Description</label>
-    <input name="description" value="{{ old('description') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Category</label>
+                        <select name="category_id" class="form-select">
+                            @foreach ($categories as $category)
+                                <option value="{{ $category->id }}">{{ $category->name }}</option>
+                            @endforeach
+                        </select>
+                    </div>
 
-    <label>Date</label>
-    <input name="spent_at" type="date" value="{{ old('spent_at', date('Y-m-d')) }}">
-    @error('spent_at')
-    <p style="color:red">{{ $message }}</p> @enderror
+                    <div class="mb-3">
+                        <label class="form-label">Amount (€)</label>
+                        <input name="amount" type="number" step="0.01" value="{{ old('amount') }}" class="form-control">
+                        @error('amount') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
 
-    <button type="submit">Add</button>
-</form>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <input name="description" value="{{ old('description') }}" class="form-control">
+                    </div>
 
-<h2>Totals by category</h2>
+                    <div class="mb-3">
+                        <label class="form-label">Date</label>
+                        <input name="spent_at" type="date" value="{{ old('spent_at', date('Y-m-d')) }}" class="form-control">
+                        @error('spent_at') <div class="text-danger small">{{ $message }}</div> @enderror
+                    </div>
 
-<ul>
-    @forelse ($totals as $category => $total)
-        <li>{{ $category }}: {{ number_format($total, 2) }} €</li>
-    @empty
-        <li>Nothing yet.</li>
-    @endforelse
-</ul>
+                    <button type="submit" class="btn btn-primary w-100">Add expense</button>
+                </form>
+            </div>
+        </div>
 
-<h2>My expenses</h2>
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <h2 class="h5 mb-3">Totals by category</h2>
 
-<form method="GET" action="/dashboard">
-    <input name="search" value="{{ request('search') }}" placeholder="Search description">
-    <button type="submit">Search</button>
-    <a href="/dashboard">Clear</a>
-</form>
+                @forelse ($totals as $category => $total)
+                    <div class="d-flex justify-content-between border-bottom py-2">
+                        <span>{{ $category }}</span>
+                        <strong>{{ number_format($total, 2) }} €</strong>
+                    </div>
+                @empty
+                    <p class="text-muted mb-0">Nothing yet.</p>
+                @endforelse
+            </div>
+        </div>
 
-<p>
-    Export:
-    <a href="/expenses/export/csv">CSV</a> |
-    <a href="/expenses/export/json">JSON</a>
-</p>
+    </div>
 
-<table border="1">
-    <tr>
-        <th>Date</th>
-        <th>Category</th>
-        <th>Description</th>
-        <th>Amount</th>
-    </tr>
-    @forelse ($expenses as $expense)
-        <tr>
-            <td>{{ $expense->spent_at->format('Y-m-d') }}</td>
-            <td>{{ $expense->category->name }}</td>
-            <td>{{ $expense->description }}</td>
-            <td>{{ $expense->amount }} €</td>
-        </tr>
-    @empty
-        <tr>
-            <td colspan="4">No expenses yet.</td>
-        </tr>
-    @endforelse
-</table>
+    <div class="col-lg-8">
+
+        <div class="card shadow-sm mb-4">
+            <div class="card-body">
+                <div class="d-flex justify-content-between mb-3">
+                    <h2 class="h5">My expenses</h2>
+                    <div>
+                        <a href="/expenses/export/csv" class="btn btn-outline-secondary btn-sm">CSV</a>
+                        <a href="/expenses/export/json" class="btn btn-outline-secondary btn-sm">JSON</a>
+                    </div>
+                </div>
+
+                <form method="GET" action="/dashboard" class="d-flex mb-3">
+                    <input name="search" value="{{ request('search') }}" placeholder="Search description" class="form-control me-2">
+                    <button type="submit" class="btn btn-secondary me-2">Search</button>
+                    <a href="/dashboard" class="btn btn-light">Clear</a>
+                </form>
+
+                <table class="table table-hover">
+                    <tr class="table-light">
+                        <th>Date</th>
+                        <th>Category</th>
+                        <th>Description</th>
+                        <th class="text-end">Amount</th>
+                    </tr>
+                    @forelse ($expenses as $expense)
+                        <tr>
+                            <td>{{ $expense->spent_at->format('Y-m-d') }}</td>
+                            <td><span class="badge bg-secondary">{{ $expense->category->name }}</span></td>
+                            <td>{{ $expense->description }}</td>
+                            <td class="text-end">{{ $expense->amount }} €</td>
+                        </tr>
+                    @empty
+                        <tr>
+                            <td colspan="4" class="text-muted">No expenses yet.</td>
+                        </tr>
+                    @endforelse
+                </table>
+            </div>
+        </div>
+
+    </div>
+
+</div>
+
 @endsection
